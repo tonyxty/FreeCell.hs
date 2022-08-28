@@ -1,0 +1,41 @@
+cabal-version:      2.4
+name:               FreeCell
+version:            0.1.0.0
+synopsis:           A terminal-based FreeCell solitaire game written in Haskell
+
+-- A longer description of the package.
+-- description:
+homepage:           https://github.com/tonyxty/FreeCell.hs
+
+-- A URL where users can report bugs.
+-- bug-reports:
+license:            GPL-3.0-or-later
+license-file:       LICENSE
+author:             Tony Beta Lambda
+maintainer:         tonybetalambda@gmail.com
+
+-- A copyright notice.
+-- copyright:
+category:           Game
+extra-source-files:
+    README.md
+
+executable FreeCell
+    main-is:          Main.hs
+
+    -- Modules included in this executable, other than Main.
+    other-modules:    Util, Deck, FreeCell, Render
+
+    -- LANGUAGE extensions used by modules in this package.
+    -- other-extensions:
+    build-depends:    base ^>=4.14.2.0,
+                      split ^>= 0.2.3.4,
+                      containers ^>= 0.6.4.1,
+                      mtl ^>= 2.2.2,
+                      random ^>= 1.2.0,
+                      random-shuffle ^>= 0.0.4,
+                      ansi-terminal ^>= 0.11,
+
+    -- Directories containing source files.
+    -- hs-source-dirs:
+    default-language: Haskell2010
