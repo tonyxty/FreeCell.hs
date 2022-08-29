@@ -13,32 +13,17 @@ import Text.Read (readMaybe)
 import System.Random
 import System.IO
 
-parseIndex :: Int -> String -> Maybe Int
-parseIndex bound s = do
-    n <- readMaybe s
-    guard $ 0 < n && n <= bound
-    return $ n - 1
-
-parseFrom :: String -> Maybe CardFrom
-parseFrom ('c':s) = Cell <$> parseIndex numOfCells s
-parseFrom s = Column <$> parseIndex numOfColumns s
-
-parseTo :: String -> Maybe CardTo
-parseTo "c" = Just AnyCell
-parseTo "f" = Just Foundation
-parseTo s = Depot <$> parseIndex numOfColumns s
-
 execute :: String -> Layout -> Either String Layout
 execute command = go . words $ toLower <$> command
     where
     go :: [String] -> Layout -> Either String Layout
     go [f, t] layout = do
-        from <- parseFrom f <?> "Where from?"
-        to <- parseTo t <?> "Where to?"
+        from <- readMaybe f <?> "Where from?"
+        to <- readMaybe t <?> "Where to?"
         first show $ move from to layout
     go [f, t, n] layout = do
-        from <- parseIndex numOfColumns f <?> "Where from?"
-        to <- parseIndex numOfColumns t <?> "Where to?"
+        from <- readIndex numOfColumns f <?> "Where from?"
+        to <- readIndex numOfColumns t <?> "Where to?"
         n <- readMaybe n <?> "How many cards?"
         first show $ moveToVacancy from to n layout
     go _ _ = Left "Invalid command"

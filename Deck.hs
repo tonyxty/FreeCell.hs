@@ -10,9 +10,6 @@ data Card = Card
     { suit :: Suit
     , rank :: Rank
     }
-
-instance Show Card where
-    show card = "♠♥♦♣" !! fromEnum (suit card) : ["A23456789TJQK" !! (rank card - 1)]
  
 colorOf :: Suit -> Color
 colorOf Spades = Black

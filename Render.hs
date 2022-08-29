@@ -3,10 +3,15 @@ module Render where
 
 import Deck
 import FreeCell
+import Data.Functor
 import qualified Data.Sequence as S
 import Control.Monad
+import Text.Read
 import System.IO
 import qualified System.Console.ANSI as C
+
+instance Show Card where
+    show card = "♠♥♦♣" !! fromEnum (suit card) : ["A23456789TJQK" !! (rank card - 1)]
 
 setColor :: C.Color -> IO ()
 setColor color = C.setSGR [C.SetColor C.Foreground C.Dull color]
@@ -56,6 +61,12 @@ render Layout {columns, foundations, cells} = do
         renderColumn cascade
         C.cursorUp 1 >> C.cursorForward 8
 
+instance Show Error where
+    show NoCard = "No card to move"
+    show Unacceptable = "Can't move"
+    show Vacancy = "Moving to vacancy (requires number of cards)"
+    show (TooLong n) = "Need to move " ++ show n ++ " cards"
+
 renderError :: Error -> IO ()
 renderError e = do
     C.setCursorPosition 15 0
@@ -73,3 +84,29 @@ putStrClearLine s = do
     putStr s
     C.clearFromCursorToLineEnd
     hFlush stdout
+
+pIndex :: Int -> ReadPrec Int
+pIndex n = do
+    i <- readPrec
+    guard $ 0 < i && i <= n
+    return $ i - 1
+
+readIndex :: Int -> String -> Maybe Int
+readIndex n s = case readPrec_to_S (pIndex n) minPrec s of
+    [(i, "")] -> Just i
+    _ -> Nothing
+
+pChar :: Char -> ReadPrec Char
+pChar c = do
+    x <- get
+    guard $ x == c
+    return x
+
+instance Read CardFrom where
+    readPrec = ((pChar 'c' $> Cell) <*> pIndex numOfCells)
+        <++ (Column <$> pIndex numOfColumns)
+
+instance Read CardTo where
+    readPrec = (pChar 'c' $> AnyCell)
+        <++ (pChar 'f' $> Foundation)
+        <++ (Depot <$> pIndex numOfColumns)

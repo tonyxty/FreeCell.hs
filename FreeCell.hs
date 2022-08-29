@@ -81,12 +81,6 @@ data CardFrom = Column Int | Cell Int
 data CardTo = Depot Int | AnyCell | Foundation
 data Error = NoCard | Unacceptable | Vacancy | TooLong Int
 
-instance Show Error where
-    show NoCard = "No card to move"
-    show Unacceptable = "Can't move"
-    show Vacancy = "Moving to vacancy (requires number of cards)"
-    show (TooLong n) = "Need to move " ++ show n ++ " cards"
-
 move' :: CardFrom -> CardTo -> (Card -> Bool) -> Layout -> Either Error Layout
 move' from to check layout = do
     card <- take from layout <?> NoCard
