@@ -9,7 +9,6 @@ import Data.Foldable
 import Data.Functor
 import Data.Bifunctor
 import Control.Monad
-import Control.Monad.State.Strict
 import Text.Read (readMaybe)
 import System.Random
 import System.IO
@@ -38,8 +37,8 @@ execute command = go . words $ toLower <$> command
         to <- parseTo t <?> "Where to?"
         first show $ move from to layout
     go [f, t, n] layout = do
-        from <- readMaybe f <?> "Where from?"
-        to <- readMaybe t <?> "Where to?"
+        from <- parseIndex numOfColumns f <?> "Where from?"
+        to <- parseIndex numOfColumns t <?> "Where to?"
         n <- readMaybe n <?> "How many cards?"
         first show $ moveToVacancy from to n layout
     go _ _ = Left "Invalid command"
@@ -49,15 +48,12 @@ play layout = do
     render layout
     layout <- doUntilM $ do
         cursorToMessages
-        putStr "Move? "
-        hFlush stdout
-        clearLine
+        putStrClearLine "Move? "
         command <- getLine
         case execute command layout of
             Left e -> do
                 cursorToErrors
-                putStrLn e
-                clearLine
+                putStrClearLine e
                 return Nothing
             Right layout -> return $ Just layout
     unless (win layout) . play . autoCollect $ layout
@@ -66,7 +62,6 @@ main :: IO ()
 main = doWhileM_ $ do
     gen <- getStdGen
     play . makeLayout . deal $ gen
-    -- evalStateT play . makeLayout . deal $ gen
     cursorToMessages
     putStrLn "Win!"
     putStr "Do it again? "

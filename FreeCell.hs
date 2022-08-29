@@ -6,7 +6,6 @@ import Deck
 import Data.Maybe
 import Data.List.Split
 import qualified Data.Sequence as S
-import Control.Applicative
 import Control.Monad
 import Control.Monad.State.Strict
 import System.Random

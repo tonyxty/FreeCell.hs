@@ -5,6 +5,7 @@ import Deck
 import FreeCell
 import qualified Data.Sequence as S
 import Control.Monad
+import System.IO
 import qualified System.Console.ANSI as C
 
 setColor :: C.Color -> IO ()
@@ -67,5 +68,8 @@ cursorToMessages = C.setCursorPosition 20 0 >> setColor normalColor
 cursorToErrors :: IO ()
 cursorToErrors = C.setCursorPosition 15 0 >> setColor errorColor
 
-clearLine :: IO ()
-clearLine = C.clearFromCursorToLineEnd
+putStrClearLine :: String -> IO ()
+putStrClearLine s = do
+    putStr s
+    C.clearFromCursorToLineEnd
+    hFlush stdout
