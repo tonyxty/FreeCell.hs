@@ -1,8 +1,9 @@
-{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE NamedFieldPuns, MonadComprehensions #-}
 module Render where
 
 import Deck
 import FreeCell
+import Data.Maybe
 import Data.Functor
 import qualified Data.Sequence as S
 import Control.Monad
@@ -86,21 +87,13 @@ putStrClearLine s = do
     hFlush stdout
 
 pIndex :: Int -> ReadPrec Int
-pIndex n = do
-    i <- readPrec
-    guard $ 0 < i && i <= n
-    return $ i - 1
+pIndex n = [ i-1 | i <- readPrec, 0 < i && i <= n ]
 
 readIndex :: Int -> String -> Maybe Int
-readIndex n s = case readPrec_to_S (pIndex n) minPrec s of
-    [(i, "")] -> Just i
-    _ -> Nothing
+readIndex n s = [ i | (i, "") <- listToMaybe . readPrec_to_S (pIndex n) minPrec $ s ]
 
 pChar :: Char -> ReadPrec Char
-pChar c = do
-    x <- get
-    guard $ x == c
-    return x
+pChar c = [ x | x <- get, x == c ]
 
 instance Read CardFrom where
     readPrec = ((pChar 'c' $> Cell) <*> pIndex numOfCells)
