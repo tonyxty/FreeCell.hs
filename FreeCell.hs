@@ -37,6 +37,7 @@ data Layout = Layout
     , cells :: S.Seq (Maybe Card)   -- always have length numOfCells
     , foundations :: S.Seq Int      -- always have length 4
     }
+    deriving (Show, Read)
 
 initialNumOfCards :: [Int]
 initialNumOfCards = [7, 7, 7, 7, 6, 6, 6, 6]

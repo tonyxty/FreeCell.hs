@@ -1,6 +1,6 @@
 module Deck where
 
-data Suit = Spades | Hearts | Diamonds | Clubs deriving (Enum, Bounded)
+data Suit = Spades | Hearts | Diamonds | Clubs deriving (Enum, Bounded, Show, Read)
 type Rank = Int
 data Color =
       Red   -- the color of desire
@@ -10,6 +10,7 @@ data Card = Card
     { suit :: Suit
     , rank :: Rank
     }
+    deriving (Show, Read)
  
 colorOf :: Suit -> Color
 colorOf Spades = Black

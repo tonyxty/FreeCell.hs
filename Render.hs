@@ -11,8 +11,8 @@ import Text.Read
 import System.IO
 import qualified System.Console.ANSI as C
 
-instance Show Card where
-    show card = "♠♥♦♣" !! fromEnum (suit card) : ["A23456789TJQK" !! (rank card - 1)]
+strCard :: Card -> String
+strCard card = "♠♥♦♣" !! fromEnum (suit card) : ["A23456789TJQK" !! (rank card - 1)]
 
 setColor :: C.Color -> IO ()
 setColor color = C.setSGR [C.SetColor C.Foreground C.Dull color]
@@ -28,7 +28,7 @@ errorColor :: C.Color
 errorColor = C.Red
 
 renderCard :: Card -> IO ()
-renderCard card = setColor (renderColor . color $ card) >> putStr (show card)
+renderCard card = setColor (renderColor . color $ card) >> putStr (strCard card)
 
 renderMaybe :: Maybe Card -> IO ()
 renderMaybe Nothing = setColor normalColor >> putStr "[  ]"
@@ -62,17 +62,17 @@ render Layout {columns, foundations, cells} = do
         renderColumn cascade
         C.cursorUp 1 >> C.cursorForward 8
 
-instance Show Error where
-    show NoCard = "No card to move"
-    show Unacceptable = "Can't move"
-    show Vacancy = "Moving to vacancy (requires number of cards)"
-    show (TooLong n) = "Need to move " ++ show n ++ " cards"
+strError :: Error -> String
+strError NoCard = "No card to move"
+strError Unacceptable = "Can't move"
+strError Vacancy = "Moving to vacancy (requires number of cards)"
+strError (TooLong n) = "Need to move " ++ show n ++ " cards"
 
 renderError :: Error -> IO ()
 renderError e = do
     C.setCursorPosition 15 0
     setColor normalColor
-    print e
+    putStrLn $ strError e
 
 cursorToMessages :: IO ()
 cursorToMessages = C.setCursorPosition 20 0 >> setColor normalColor

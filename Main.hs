@@ -13,6 +13,15 @@ import Text.Read (readMaybe)
 import System.Random
 import System.IO
 
+defaultSavePath :: FilePath
+defaultSavePath = "FreeCell.save"
+
+save :: FilePath -> Layout -> IO ()
+save path = writeFile path . show
+
+load :: FilePath -> IO (Maybe Layout)
+load = fmap readMaybe . readFile
+
 execute :: String -> Layout -> Either String Layout
 execute command = go . words $ toLower <$> command
     where
@@ -20,12 +29,12 @@ execute command = go . words $ toLower <$> command
     go [f, t] layout = do
         from <- readMaybe f <?> "Where from?"
         to <- readMaybe t <?> "Where to?"
-        first show $ move from to layout
+        first strError $ move from to layout
     go [f, t, n] layout = do
         from <- readIndex numOfColumns f <?> "Where from?"
         to <- readIndex numOfColumns t <?> "Where to?"
         n <- readMaybe n <?> "How many cards?"
-        first show $ moveToVacancy from to n layout
+        first strError $ moveToVacancy from to n layout
     go _ _ = Left "Invalid command"
 
 play :: Layout -> IO ()
@@ -35,12 +44,16 @@ play layout = do
         cursorToMessages
         putStrClearLine "Move? "
         command <- getLine
-        case execute command layout of
-            Left e -> do
-                cursorToErrors
-                putStrClearLine e
-                return Nothing
-            Right layout -> return $ Just layout
+        case command of
+            'w':path -> save (if null path then defaultSavePath else path) layout $> Just layout
+            'r':path -> load (if null path then defaultSavePath else path)
+            _ -> 
+                case execute command layout of
+                    Left e -> do
+                        cursorToErrors
+                        putStrClearLine e
+                        return Nothing
+                    Right layout -> return $ Just layout
     unless (win layout) . play . autoCollect $ layout
 
 main :: IO ()
